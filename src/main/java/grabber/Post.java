@@ -1,3 +1,5 @@
+package grabber;
+
 import java.util.Date;
 
 public class Post {
@@ -7,18 +9,18 @@ public class Post {
     private String description;
     private Date create_date;
 
-    public Post(String subject, String link, String description, Date create_date) {
+    public Post(String subject, String link, String description, Date createDate) {
         this.subject = subject;
         this.link = link;
         this.description = description;
-        this.create_date = create_date;
+        this.create_date = createDate;
     }
 
-    public Post(String subject, String link, Date create_date) {
+    public Post(String subject, String link, Date createDate) {
         this.subject = subject;
         this.link = link;
         this.description = "";
-        this.create_date = create_date;
+        this.create_date = createDate;
     }
 
     public Post(String subject, String link) {
@@ -42,6 +44,10 @@ public class Post {
 
     public String getDescription() {
         return description;
+    }
+
+    public Date getCreate_date() {
+        return create_date;
     }
 
     @Override

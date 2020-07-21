@@ -21,20 +21,23 @@ public class SqlRuParse {
     public static void main(String[] args) throws Exception {
         SimpleDateFormat form = new SimpleDateFormat("dd MMM yy, hh:mm" );
         SimpleDateFormat shortForm = new SimpleDateFormat("dd MMM yy" );
+        int pageCount = 5;
         Date yesterday = yesterday();
-        Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers").get();
-        Elements row = doc.select(".postslisttopic");
-        for (Element td : row) {
-            Element href = td.child(0);
-            System.out.println(href.attr("href"));
-            System.out.println(href.text());
-            Element parent = td.parent();
-            Element dataElement = parent.child(5);
-            String dataElementText = dataElement.text()
-                    .replace(TODAY_TEXT, shortForm.format(new Date()))
-                    .replace(YESTERDAY_TEXT, shortForm.format(yesterday));
-            Date oldD =  form.parse(dataElementText);
-            System.out.println(oldD);
+        for (int i =1; i <= pageCount; i ++) {
+            Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers/" + i).get();
+            Elements row = doc.select(".postslisttopic");
+            for (Element td : row) {
+                Element href = td.child(0);
+                System.out.println(href.attr("href"));
+                System.out.println(href.text());
+                Element parent = td.parent();
+                Element dataElement = parent.child(5);
+                String dataElementText = dataElement.text()
+                        .replace(TODAY_TEXT, shortForm.format(new Date()))
+                        .replace(YESTERDAY_TEXT, shortForm.format(yesterday));
+                Date oldD = form.parse(dataElementText);
+                System.out.println(oldD);
+            }
         }
     }
 

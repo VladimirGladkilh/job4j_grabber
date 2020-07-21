@@ -52,6 +52,11 @@ public class Post {
 
     @Override
     public String toString() {
-        return String.format("{} ({})", this.subject, this.link);
+        return String.format("%s (%s)", this.subject, this.link);
+    }
+
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

@@ -4,65 +4,53 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 
-public class SqlRuParse {
+public class SqlRuParse implements Parse {
 
     private static final String TODAY_TEXT = "сегодня";
     private static final String YESTERDAY_TEXT = "вчера";
+    private static final SimpleDateFormat form = new SimpleDateFormat("dd MMM yy, hh:mm" );
+    private static final SimpleDateFormat shortForm = new SimpleDateFormat("dd MMM yy" );
 
-    /**
-     * В полях с датой надо производить замену текста Сегодня и Вчера на соответствующие даты
-     * @param args
-     * @throws Exception
-     */
-    public static void main(String[] args) throws Exception {
-        SimpleDateFormat form = new SimpleDateFormat("dd MMM yy, hh:mm" );
-        SimpleDateFormat shortForm = new SimpleDateFormat("dd MMM yy" );
-        int pageCount = 1;
-        Date yesterday = yesterday();
-        for (int i =1; i <= pageCount; i ++) {
-            Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers/" + i).get();
-            Elements row = doc.select(".postslisttopic");
-            for (Element td : row) {
-                Element href = td.child(0);
-                System.out.println(href.attr("href"));
-                System.out.println(href.text());
-                String detail = getDetail(href.attr("href"));
-                System.out.println(detail);
-                Element parent = td.parent();
-                Element dataElement = parent.child(5);
-                String dataElementText = dataElement.text()
-                        .replace(TODAY_TEXT, shortForm.format(new Date()))
-                        .replace(YESTERDAY_TEXT, shortForm.format(yesterday));
-                Date oldD = form.parse(dataElementText);
-                System.out.println(oldD);
-            }
-        }
-    }
-
-    /**
-     * все украдено до нас https://fooobar.com/questions/64063/get-yesterdays-date-using-date
-     * @return
-     */
     private static Date yesterday() {
         final Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);
         return cal.getTime();
     }
 
-    /**
-     * Берем из списка второй тег боди т.к. в первом идет инфа о топикстартере
-     * @param link - ссылка на объявление
-     * @return
-     * @throws IOException
-     */
-    private static String getDetail(String link) throws IOException {
+    @Override
+    public List<Post> list(String link) throws IOException, ParseException {
+        List<Post> posts = new LinkedList<>();
         Document doc = Jsoup.connect(link).get();
-        Elements rows = doc.select(".msgBody");
-        return rows.get(1).text();
+        Elements row = doc.select(".postslisttopic");
+        for (Element td : row) {
+            Element href = td.child(0);
+            String postLink = href.attr("href");
+            posts.add(detail(postLink));
+        }
+        return posts;
+    }
+
+    @Override
+    public Post detail(String link) throws IOException, ParseException {
+        Date yesterday = yesterday();
+        Document doc = Jsoup.connect(link).get();
+        Elements rows = doc.select(".msgHeader");
+        String subject = rows.get(0).text();
+
+        rows = doc.select(".msgBody");
+        String description = rows.get(1).text();
+
+        rows = doc.select(".msgFooter");
+        String footerText = rows.get(0).text().split("\\[")[0].trim();
+        String dataElementText = footerText
+                .replace(TODAY_TEXT, shortForm.format(new Date()))
+                .replace(YESTERDAY_TEXT, shortForm.format(yesterday));
+        Date create_date = form.parse(dataElementText);
+
+        return new Post(subject, link, description, create_date);
     }
 }

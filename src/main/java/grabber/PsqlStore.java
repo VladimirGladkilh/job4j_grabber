@@ -27,19 +27,21 @@ public class PsqlStore implements Store, AutoCloseable {
 
     @Override
     public void save(Post post) {
-        try (PreparedStatement st = cnn.prepareStatement("insert into post (subject, link, description, create_date) values (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);){
-            st.setString(1, post.getSubject());
-            st.setString(2, post.getLink());
-            st.setString(3, post.getDescription());
-            st.setTimestamp(4,new Timestamp(post.getCreate_date().getTime()));
-            st.executeUpdate();
-            try (ResultSet generatedKeys = st.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    post.setId(generatedKeys.getInt(1));
+        if (!findByLink(post.getLink())) {
+            try (PreparedStatement st = cnn.prepareStatement("insert into post (subject, link, description, create_date) values (?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);) {
+                st.setString(1, post.getSubject());
+                st.setString(2, post.getLink());
+                st.setString(3, post.getDescription());
+                st.setTimestamp(4, new Timestamp(post.getCreate_date().getTime()));
+                st.executeUpdate();
+                try (ResultSet generatedKeys = st.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        post.setId(generatedKeys.getInt(1));
+                    }
                 }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
@@ -83,6 +85,18 @@ public class PsqlStore implements Store, AutoCloseable {
         return post;
     }
 
+    public boolean findByLink(String link) {
+        try (PreparedStatement st = cnn.prepareStatement("select * from post where link = ?");){
+            st.setString(1, link);
+            st.executeQuery();
+            return st.getResultSet().next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+
+        }
+        return false;
+    }
     @Override
     public void close() throws Exception {
         if (cnn != null) {
@@ -90,7 +104,7 @@ public class PsqlStore implements Store, AutoCloseable {
         }
     }
 
-    public static void main(String[] args) throws SQLException {
+    /*public static void main(String[] args) throws SQLException {
         try (InputStream in = PsqlStore.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
             Properties config = new Properties();
             config.load(in);
@@ -105,6 +119,6 @@ public class PsqlStore implements Store, AutoCloseable {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
-    }
+    }*/
 
 }

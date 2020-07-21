@@ -40,19 +40,16 @@ public class SqlRuParse implements Parse {
     public Post detail(String link) throws IOException, ParseException {
         Date yesterday = yesterday();
         Document doc = Jsoup.connect(link).get();
-        Elements rows = doc.select(".msgHeader");
+        Elements rows = doc.select(".messageHeader");
         String subject = rows.get(0).text();
-
         rows = doc.select(".msgBody");
         String description = rows.get(1).text();
-
         rows = doc.select(".msgFooter");
         String footerText = rows.get(0).text().split("\\[")[0].trim();
         String dataElementText = footerText
                 .replace(TODAY_TEXT, shortForm.format(new Date()))
                 .replace(YESTERDAY_TEXT, shortForm.format(yesterday));
         Date create_date = form.parse(dataElementText);
-
         return new Post(subject, link, description, create_date);
     }
 }

@@ -3,6 +3,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -21,7 +22,7 @@ public class SqlRuParse {
     public static void main(String[] args) throws Exception {
         SimpleDateFormat form = new SimpleDateFormat("dd MMM yy, hh:mm" );
         SimpleDateFormat shortForm = new SimpleDateFormat("dd MMM yy" );
-        int pageCount = 5;
+        int pageCount = 1;
         Date yesterday = yesterday();
         for (int i =1; i <= pageCount; i ++) {
             Document doc = Jsoup.connect("https://www.sql.ru/forum/job-offers/" + i).get();
@@ -30,6 +31,8 @@ public class SqlRuParse {
                 Element href = td.child(0);
                 System.out.println(href.attr("href"));
                 System.out.println(href.text());
+                String detail = getDetail(href.attr("href"));
+                System.out.println(detail);
                 Element parent = td.parent();
                 Element dataElement = parent.child(5);
                 String dataElementText = dataElement.text()
@@ -49,5 +52,17 @@ public class SqlRuParse {
         final Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, -1);
         return cal.getTime();
+    }
+
+    /**
+     * Берем из списка второй тег боди т.к. в первом идет инфа о топикстартере
+     * @param link - ссылка на объявление
+     * @return
+     * @throws IOException
+     */
+    private static String getDetail(String link) throws IOException {
+        Document doc = Jsoup.connect(link).get();
+        Elements rows = doc.select(".msgBody");
+        return rows.get(1).text();
     }
 }

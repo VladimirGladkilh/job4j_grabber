@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Properties;
 
@@ -86,10 +87,12 @@ public class Grabber implements Grab {
                     Socket socket = server.accept();
                     try (OutputStream out = socket.getOutputStream()) {
                         out.write("HTTP/1.1 200 OK\r\n\r\n".getBytes());
+                        out.write("<table border='1'>".getBytes());
                         for (Post post : store.getAll()) {
                             out.write(post.toString().getBytes("Windows-1251"));
                             out.write(System.lineSeparator().getBytes());
                         }
+                        out.write("</table>".getBytes());
                     } catch (IOException io) {
                         io.printStackTrace();
                     }

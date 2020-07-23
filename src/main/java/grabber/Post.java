@@ -1,5 +1,6 @@
 package grabber;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Post {
@@ -52,7 +53,12 @@ public class Post {
 
     @Override
     public String toString() {
-        return String.format("%s (%s)", this.subject, this.link);
+        //return String.format("<tr><td><a href='%s'> %s</a></td><td>%s</td><td>%s</td></tr>", this.link, this.subject,
+        //        new SimpleDateFormat("dd MMM yy hh:mm").format(this.create_date), this.description);
+        return String.format("<tr><td width='35%%'><a href='%s'>%s</a></td><td width='15%%'>%s</td><td width='50%%'>%s</td></tr>",
+                this.link, this.subject,
+                new SimpleDateFormat("dd MMM yy hh:mm").format(this.create_date),
+                this.description);
     }
 
 

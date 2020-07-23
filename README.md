@@ -16,7 +16,7 @@
 </ul>
 <p>
 <a target="_blank" rel="noopener noreferrer"
- href="/VladimirGladkilh/job4j_grabber/table.png">
- <img src="/VladimirGladkilh/job4j_grabber/table.png" alt="img" style="max-width:100%;"></a>
+ href="/table.png">
+ <img src="/table.png" alt="img" style="max-width:100%;"></a>
  </p>
 
